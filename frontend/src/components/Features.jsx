@@ -38,14 +38,14 @@ const features = [
 
 export default function Features() {
   return (
-    <section className="py-20 px-5 md:px-12">
+    <section className="py-24 px-5 md:px-12 bg-white relative">
       <div className="max-w-6xl mx-auto">
         {/* Section Header */}
-        <div className="text-center mb-14">
-          <span className="text-xs font-bold uppercase tracking-widest text-(--color-primary) bg-blue-50 px-3.5 py-1.5 rounded-full">
+        <div className="text-center mb-16">
+          <span className="text-xs font-bold uppercase tracking-widest text-(--color-primary) bg-blue-50 px-4 py-2 rounded-full border border-blue-100 shadow-sm">
             Why HustleHub
           </span>
-          <h2 className="text-headline-lg text-(--color-primary) mt-4 mb-4">
+          <h2 className="text-headline-lg text-(--color-primary) mt-5 mb-4">
             Built for trust & community
           </h2>
           <p className="text-body-md text-(--color-on-surface-variant) max-w-xl mx-auto leading-relaxed">
@@ -54,16 +54,16 @@ export default function Features() {
         </div>
 
         {/* Feature Cards Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
           {features.map((feat, i) => (
             <div
               key={i}
-              className={`bg-white border ${feat.border} rounded-(--radius-xl) p-7 shadow-level-1 hover:shadow-level-3 hover:-translate-y-1 transition-all group`}
+              className={`bg-white border ${feat.border} rounded-(--radius-xl) p-8 shadow-level-1 hover:shadow-level-3 hover:translate-y-[-6px] transition-all duration-300 group flex flex-col items-start`}
             >
-              <div className={`w-12 h-12 ${feat.bg} rounded-xl flex items-center justify-center ${feat.color} mb-5 group-hover:scale-110 transition-transform`}>
+              <div className={`w-14 h-14 ${feat.bg} rounded-2xl flex items-center justify-center ${feat.color} mb-6 group-hover:rotate-[6deg] group-hover:scale-110 transition-transform duration-300 shadow-sm`}>
                 {feat.icon}
               </div>
-              <h3 className="text-headline-sm font-semibold text-(--color-on-background) mb-2">
+              <h3 className="text-headline-sm font-bold text-(--color-on-background) mb-3">
                 {feat.title}
               </h3>
               <p className="text-body-sm text-(--color-on-surface-variant) leading-relaxed">
@@ -77,10 +77,10 @@ export default function Features() {
         <div className="text-center">
           <Link
             href="/trust-safety"
-            className="inline-flex items-center gap-2 text-body-sm font-semibold text-(--color-primary) hover:gap-3 transition-all group"
+            className="inline-flex items-center gap-2 text-body-md font-bold text-(--color-primary) hover:gap-3 transition-all duration-200 group bg-blue-50/50 hover:bg-blue-50 px-6 py-3 rounded-full border border-blue-100/30"
           >
             Learn more about our safety standards
-            <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+            <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-200" />
           </Link>
         </div>
       </div>

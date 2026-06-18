@@ -43,16 +43,40 @@ export default function FindWorkPage() {
     return matchesSearch && matchesCategory;
   });
 
-  const handleApply = () => {
+  const handleApply = async () => {
     setApplying(true);
-    setTimeout(() => {
-      setApplying(false);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.user) {
+        alert("You must be logged in to apply for jobs.");
+        return;
+      }
+      
+      const { error } = await supabase
+        .from("applications")
+        .insert({
+          job_id: selectedJob.id,
+          provider_id: session.user.id,
+          cover_note: "Applied from job board.",
+          status: "pending"
+        });
+
+      if (error) {
+        alert("Failed to submit application: " + error.message);
+        return;
+      }
+
       setApplied(true);
       setTimeout(() => {
         setSelectedJob(null);
         setApplied(false);
       }, 2000);
-    }, 1500);
+    } catch (err) {
+      console.error("Apply error:", err);
+      alert("An unexpected error occurred while applying.");
+    } finally {
+      setApplying(false);
+    }
   };
 
   return (

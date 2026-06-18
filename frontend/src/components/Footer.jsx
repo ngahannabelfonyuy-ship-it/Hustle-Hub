@@ -18,38 +18,41 @@ const links = {
 
 export default function Footer() {
   return (
-    <footer className="bg-(--color-inverse-surface) text-(--color-inverse-on-surface) py-16 px-5 md:px-12">
+    <footer className="bg-(--color-inverse-surface) text-(--color-inverse-on-surface) py-16 px-5 md:px-12 border-t border-white/5">
       <div className="max-w-6xl mx-auto">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-12 mb-12">
           {/* Brand Column */}
-          <div>
-            <Link href="/" className="text-2xl font-bold font-[family-name:--font-headline] text-white hover:opacity-90 transition-opacity">
-              HustleHub
+          <div className="space-y-4">
+            <Link href="/" className="text-2xl font-bold font-[family-name:--font-headline] text-white hover:scale-[1.01] transition-transform flex items-center gap-1.5">
+              <span className="bg-gradient-to-br from-(--color-primary) to-indigo-500 text-white w-8 h-8 rounded-lg flex items-center justify-center text-lg shadow-sm">H</span>
+              <span>HustleHub</span>
             </Link>
-            <p className="text-sm text-(--color-inverse-on-surface)/70 mt-3 mb-6 leading-relaxed max-w-xs">
+            <p className="text-sm text-(--color-inverse-on-surface)/70 leading-relaxed max-w-xs">
               Connecting people who need help with trusted local workers. Safe, affordable, and community-driven.
             </p>
-            <Link
-              href="/signup"
-              className="inline-flex items-center gap-2 bg-(--color-primary) text-white text-sm font-semibold px-5 py-2.5 rounded-(--radius-md) hover:opacity-90 hover:scale-[1.02] transition-all"
-            >
-              Get Started Free
-              <ArrowRight className="w-3.5 h-3.5" />
-            </Link>
+            <div className="pt-2">
+              <Link
+                href="/signup"
+                className="inline-flex items-center gap-2 bg-gradient-to-r from-(--color-primary) to-indigo-700 text-white text-sm font-bold px-6 py-3 rounded-(--radius-md) hover:shadow-md hover:scale-[1.02] active:scale-[0.98] transition-all"
+              >
+                Get Started Free
+                <ArrowRight className="w-4 h-4" />
+              </Link>
+            </div>
           </div>
 
           {/* Link Columns */}
           {Object.entries(links).map(([category, items]) => (
             <div key={category}>
-              <h3 className="text-xs font-bold uppercase tracking-widest text-(--color-inverse-on-surface)/50 mb-5">
+              <h3 className="text-xs font-bold uppercase tracking-widest text-(--color-inverse-on-surface)/40 mb-6">
                 {category}
               </h3>
-              <ul className="flex flex-col gap-3">
+              <ul className="flex flex-col gap-3.5">
                 {items.map((item) => (
                   <li key={item.href}>
                     <Link
                       href={item.href}
-                      className="text-sm text-(--color-inverse-on-surface)/80 hover:text-white transition-colors"
+                      className="text-sm text-(--color-inverse-on-surface)/80 hover:text-white transition-colors duration-200"
                     >
                       {item.label}
                     </Link>

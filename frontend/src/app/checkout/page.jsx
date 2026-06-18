@@ -141,6 +141,8 @@ export default async function PaymentReviewPage({ params }) {
               total={total}
               freelancerName={freelancer.name}
               paymentMethodsNode={null}
+              jobId={jobId}
+              freelancerId={freelancer.id}
             />
           </section>
         </div>

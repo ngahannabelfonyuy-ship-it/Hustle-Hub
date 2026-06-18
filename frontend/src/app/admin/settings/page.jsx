@@ -1,186 +1,202 @@
 "use client";
 
-import { useState } from "react";
-import { Save, Key, ShieldAlert, Mail, Percent, Banknote, Bell } from "lucide-react";
+import { useState, useEffect } from "react";
+import { supabase } from "@/lib/supabase";
+import { Save, Globe, Mail, Shield, AlertCircle, CheckCircle2 } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 export default function AdminSettingsPage() {
-  const [general, setGeneral] = useState({
-    siteName: "HustleHub",
-    supportEmail: "support@hustlehub.com",
-    serviceFee: 10,
-    minWithdrawal: 15,
+  const [platformSettings, setPlatformSettings] = useState({
+    platform_name:    "HustleHub",
+    support_email:    "support@hustlehub.cm",
+    min_job_budget:   500,
+    escrow_fee_pct:   5,
+    allow_cash_jobs:  true,
+    require_guarantor: true,
+    maintenance_mode: false,
   });
-
-  const [notifications, setNotifications] = useState({
-    newUserAlert: true,
-    newDisputeAlert: true,
-    weeklyDigest: false,
-  });
-
   const [saving, setSaving] = useState(false);
-  const [success, setSuccess] = useState(false);
+  const [toast, setToast] = useState(null);
 
-  const handleSaveGeneral = (e) => {
+  useEffect(() => {
+    supabase
+      .from("platform_settings")
+      .select("*")
+      .eq("id", true)
+      .maybeSingle()
+      .then(({ data }) => {
+        if (data) {
+          setPlatformSettings({
+            platform_name:     data.platform_name,
+            support_email:     data.support_email,
+            min_job_budget:    data.min_job_budget,
+            escrow_fee_pct:    data.escrow_fee_pct,
+            allow_cash_jobs:   data.allow_cash_jobs,
+            require_guarantor: data.require_guarantor,
+            maintenance_mode:  data.maintenance_mode,
+          });
+        }
+      })
+      .catch((err) => console.error("Error loading platform settings:", err));
+  }, []);
+
+  function showToast(type, text) {
+    setToast({ type, text });
+    setTimeout(() => setToast(null), 4000);
+  }
+
+  async function handleSave(e) {
     e.preventDefault();
     setSaving(true);
-    setTimeout(() => {
+    try {
+      const { error } = await supabase
+        .from("platform_settings")
+        .update({
+          platform_name:     platformSettings.platform_name,
+          support_email:     platformSettings.support_email,
+          min_job_budget:    Number(platformSettings.min_job_budget),
+          escrow_fee_pct:    Number(platformSettings.escrow_fee_pct),
+          allow_cash_jobs:   platformSettings.allow_cash_jobs,
+          require_guarantor: platformSettings.require_guarantor,
+          maintenance_mode:  platformSettings.maintenance_mode,
+          updated_at:        new Date().toISOString()
+        })
+        .eq("id", true);
+
+      if (error) throw error;
+      showToast("success", "Settings saved successfully to the database.");
+    } catch (err) {
+      console.error("Save platform settings error:", err);
+      showToast("error", "Failed to save settings: " + err.message);
+    } finally {
       setSaving(false);
-      setSuccess(true);
-      setTimeout(() => setSuccess(false), 3000);
-    }, 1000);
-  };
+    }
+  }
 
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
       <div>
-        <h1 className="text-headline-md text-(--color-on-background)">
-          System Settings
-        </h1>
+        <h1 className="text-headline-md text-(--color-on-background)">Admin Settings</h1>
         <p className="text-body-sm text-(--color-on-surface-variant) mt-1">
-          Configure fees, escrow percentages, system preferences, and notification defaults.
+          Configure platform-wide settings, fees, and feature flags.
         </p>
       </div>
 
-      {success && (
-        <div className="p-4 rounded-lg text-sm font-semibold border bg-emerald-50 text-emerald-800 border-emerald-200 animate-in slide-in-from-top-2">
-          Settings saved successfully!
+      <form onSubmit={handleSave} className="space-y-6 max-w-2xl">
+        {/* Platform Identity */}
+        <div className="bg-white rounded-(--radius-lg) border border-(--color-outline-variant)/30 shadow-sm p-6 space-y-5">
+          <div className="flex items-center gap-2 mb-1">
+            <Globe className="w-5 h-5 text-(--color-primary)" />
+            <h2 className="text-lg font-semibold text-(--color-on-background)">Platform Identity</h2>
+          </div>
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-semibold text-(--color-on-background) mb-1.5">Platform Name</label>
+              <input
+                value={platformSettings.platform_name}
+                onChange={(e) => setPlatformSettings((s) => ({ ...s, platform_name: e.target.value }))}
+                className="w-full px-4 py-2.5 border border-(--color-outline-variant)/50 rounded-(--radius-md) text-sm bg-gray-50 outline-none focus:border-red-400 focus:bg-white transition-all"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-semibold text-(--color-on-background) mb-1.5">Support Email</label>
+              <input
+                type="email"
+                value={platformSettings.support_email}
+                onChange={(e) => setPlatformSettings((s) => ({ ...s, support_email: e.target.value }))}
+                className="w-full px-4 py-2.5 border border-(--color-outline-variant)/50 rounded-(--radius-md) text-sm bg-gray-50 outline-none focus:border-red-400 focus:bg-white transition-all"
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* Financial Settings */}
+        <div className="bg-white rounded-(--radius-lg) border border-(--color-outline-variant)/30 shadow-sm p-6 space-y-5">
+          <div className="flex items-center gap-2 mb-1">
+            <Shield className="w-5 h-5 text-emerald-600" />
+            <h2 className="text-lg font-semibold text-(--color-on-background)">Financial Settings</h2>
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-semibold text-(--color-on-background) mb-1.5">Min Job Budget (FCFA)</label>
+              <input
+                type="number"
+                min={0}
+                value={platformSettings.min_job_budget}
+                onChange={(e) => setPlatformSettings((s) => ({ ...s, min_job_budget: Number(e.target.value) }))}
+                className="w-full px-4 py-2.5 border border-(--color-outline-variant)/50 rounded-(--radius-md) text-sm bg-gray-50 outline-none focus:border-red-400 focus:bg-white transition-all"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-semibold text-(--color-on-background) mb-1.5">Platform Fee (%)</label>
+              <input
+                type="number"
+                min={0}
+                max={100}
+                step={0.5}
+                value={platformSettings.escrow_fee_pct}
+                onChange={(e) => setPlatformSettings((s) => ({ ...s, escrow_fee_pct: Number(e.target.value) }))}
+                className="w-full px-4 py-2.5 border border-(--color-outline-variant)/50 rounded-(--radius-md) text-sm bg-gray-50 outline-none focus:border-red-400 focus:bg-white transition-all"
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* Feature Flags */}
+        <div className="bg-white rounded-(--radius-lg) border border-(--color-outline-variant)/30 shadow-sm p-6 space-y-4">
+          <div className="flex items-center gap-2 mb-1">
+            <Mail className="w-5 h-5 text-blue-500" />
+            <h2 className="text-lg font-semibold text-(--color-on-background)">Feature Flags</h2>
+          </div>
+          {[
+            { key: "allow_cash_jobs",   label: "Allow Cash Jobs",        desc: "Permit jobs recorded as cash-only (no escrow)" },
+            { key: "require_guarantor", label: "Require Guarantor",       desc: "Providers must submit guarantor info to be verified" },
+            { key: "maintenance_mode",  label: "Maintenance Mode",        desc: "Temporarily disable all non-admin platform access" },
+          ].map(({ key, label, desc }) => (
+            <label key={key} className={cn(
+              "flex items-start gap-4 p-4 rounded-(--radius-md) border cursor-pointer hover:bg-gray-50 transition-colors",
+              key === "maintenance_mode" && platformSettings[key] ? "border-red-200 bg-red-50" : "border-(--color-outline-variant)/30"
+            )}>
+              <div className="relative mt-0.5">
+                <input
+                  type="checkbox"
+                  checked={platformSettings[key]}
+                  onChange={(e) => setPlatformSettings((s) => ({ ...s, [key]: e.target.checked }))}
+                  className="sr-only peer"
+                />
+                <div className={cn("w-10 h-6 rounded-full transition-colors", key === "maintenance_mode" ? "bg-gray-200 peer-checked:bg-red-500" : "bg-gray-200 peer-checked:bg-emerald-500")} />
+                <div className="absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform peer-checked:translate-x-4" />
+              </div>
+              <div>
+                <p className="text-sm font-semibold text-(--color-on-background)">{label}</p>
+                <p className="text-xs text-(--color-on-surface-variant) mt-0.5">{desc}</p>
+              </div>
+            </label>
+          ))}
+        </div>
+
+        <div className="flex justify-end">
+          <button
+            type="submit"
+            disabled={saving}
+            className="flex items-center gap-2 bg-red-500 text-white px-5 py-2.5 rounded-(--radius-md) text-sm font-semibold hover:bg-red-600 transition-all disabled:opacity-50"
+          >
+            <Save className="w-4 h-4" />
+            {saving ? "Saving…" : "Save Settings"}
+          </button>
+        </div>
+      </form>
+
+      {/* Toast */}
+      {toast && (
+        <div className={cn(
+          "fixed bottom-6 right-6 z-50 flex items-center gap-2 px-4 py-3 rounded-(--radius-md) text-sm font-semibold shadow-level-3 border animate-in slide-in-from-bottom-4",
+          toast.type === "error" ? "bg-red-50 text-red-800 border-red-200" : "bg-emerald-50 text-emerald-800 border-emerald-200"
+        )}>
+          {toast.type === "error" ? <AlertCircle className="w-4 h-4" /> : <CheckCircle2 className="w-4 h-4" />}
+          {toast.text}
         </div>
       )}
-
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        
-        {/* General Settings */}
-        <div className="lg:col-span-2 space-y-6">
-          <form onSubmit={handleSaveGeneral} className="bg-white rounded-(--radius-lg) border border-(--color-outline-variant)/30 shadow-sm overflow-hidden">
-            <div className="p-6 border-b border-(--color-outline-variant)/20">
-              <h2 className="text-md font-semibold text-gray-900">Platform Configuration</h2>
-            </div>
-            
-            <div className="p-6 space-y-5">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {/* Site Name */}
-                <div className="space-y-1.5">
-                  <label className="text-xs font-bold uppercase tracking-wider text-gray-500">Site Name</label>
-                  <input 
-                    type="text" 
-                    value={general.siteName}
-                    onChange={(e) => setGeneral({ ...general, siteName: e.target.value })}
-                    className="w-full bg-gray-50 border rounded-md px-3.5 py-2 text-sm outline-none focus:border-(--color-primary) transition-all"
-                  />
-                </div>
-
-                {/* Support Email */}
-                <div className="space-y-1.5">
-                  <label className="text-xs font-bold uppercase tracking-wider text-gray-500">System Support Email</label>
-                  <div className="relative">
-                    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                    <input 
-                      type="email" 
-                      value={general.supportEmail}
-                      onChange={(e) => setGeneral({ ...general, supportEmail: e.target.value })}
-                      className="w-full pl-9 pr-4 py-2 bg-gray-50 border rounded-md text-sm outline-none focus:border-(--color-primary) transition-all"
-                    />
-                  </div>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {/* Service Fee */}
-                <div className="space-y-1.5">
-                  <label className="text-xs font-bold uppercase tracking-wider text-gray-500">Service Fee Percentage (%)</label>
-                  <div className="relative">
-                    <Percent className="absolute left-3 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-gray-400" />
-                    <input 
-                      type="number" 
-                      value={general.serviceFee}
-                      onChange={(e) => setGeneral({ ...general, serviceFee: Number(e.target.value) })}
-                      className="w-full pl-9 pr-4 py-2 bg-gray-50 border rounded-md text-sm outline-none focus:border-(--color-primary) transition-all"
-                    />
-                  </div>
-                </div>
-
-                {/* Minimum Payout */}
-                <div className="space-y-1.5">
-                  <label className="text-xs font-bold uppercase tracking-wider text-gray-500">Minimum Withdrawal Amount (FCFA)</label>
-                  <div className="relative">
-                    <Banknote className="absolute left-3 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-gray-400" />
-                    <input 
-                      type="number" 
-                      value={general.minWithdrawal}
-                      onChange={(e) => setGeneral({ ...general, minWithdrawal: Number(e.target.value) })}
-                      className="w-full pl-9 pr-4 py-2 bg-gray-50 border rounded-md text-sm outline-none focus:border-(--color-primary) transition-all"
-                    />
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div className="p-6 bg-gray-50 border-t border-(--color-outline-variant)/20 flex justify-end">
-              <button 
-                type="submit"
-                disabled={saving}
-                className="flex items-center gap-2 px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-md text-xs font-bold transition-all shadow-sm disabled:opacity-75"
-              >
-                {saving ? (
-                  <span className="inline-block w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                ) : (
-                  <>
-                    <Save className="w-4 h-4" /> Save General settings
-                  </>
-                )}
-              </button>
-            </div>
-          </form>
-        </div>
-
-        {/* Sidebar settings (notifications & system key) */}
-        <div className="space-y-6">
-          {/* Notifications */}
-          <div className="bg-white rounded-(--radius-lg) border border-(--color-outline-variant)/30 shadow-sm p-6 space-y-4">
-            <div className="flex items-center gap-2 text-md font-semibold text-gray-900 border-b pb-3 border-gray-100">
-              <Bell className="w-4.5 h-4.5 text-blue-500" />
-              <span>Admin Notifications</span>
-            </div>
-            
-            <div className="space-y-3">
-              <label className="flex items-center justify-between text-xs text-gray-700 cursor-pointer">
-                <span>New User Registration alerts</span>
-                <input 
-                  type="checkbox" 
-                  checked={notifications.newUserAlert} 
-                  onChange={(e) => setNotifications({ ...notifications, newUserAlert: e.target.checked })}
-                  className="rounded text-blue-600 focus:ring-blue-500 w-4 h-4"
-                />
-              </label>
-
-              <label className="flex items-center justify-between text-xs text-gray-700 cursor-pointer">
-                <span>New Dispute alerts</span>
-                <input 
-                  type="checkbox" 
-                  checked={notifications.newDisputeAlert}
-                  onChange={(e) => setNotifications({ ...notifications, newDisputeAlert: e.target.checked })}
-                  className="rounded text-blue-600 focus:ring-blue-500 w-4 h-4"
-                />
-              </label>
-            </div>
-          </div>
-
-          {/* System Keys placeholder */}
-          <div className="bg-white rounded-(--radius-lg) border border-(--color-outline-variant)/30 shadow-sm p-6 space-y-4">
-            <div className="flex items-center gap-2 text-md font-semibold text-gray-900 border-b pb-3 border-gray-100">
-              <Key className="w-4.5 h-4.5 text-blue-500" />
-              <span>Escrow API Credentials</span>
-            </div>
-            <p className="text-[10px] text-gray-400">Escrow service parameters (Fapshi API configuration, secret keys).</p>
-            <div className="pt-2">
-              <span className="text-xs bg-amber-50 text-amber-800 border border-amber-200 px-3 py-2 rounded-lg block font-semibold text-center">
-                Mock Mode Active
-              </span>
-            </div>
-          </div>
-        </div>
-
-      </div>
     </div>
   );
 }

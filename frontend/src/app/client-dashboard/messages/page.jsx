@@ -1,8 +1,5 @@
-export default function ClientMessagesPage() {
-  return (
-    <div className="p-6 bg-white rounded-xl shadow-sm border border-gray-100 min-h-[60vh] flex flex-col items-center justify-center text-center">
-      <h1 className="text-2xl font-bold text-gray-900 mb-2">Messages</h1>
-      <p className="text-gray-500">Communicate securely with providers for your active jobs.</p>
-    </div>
-  );
-}
+"use client";
+
+// Re-export the same Messages component for the client dashboard.
+// The messaging logic is symmetric — both providers and clients use the same table/UI.
+export { default } from "@/app/dashboard/messages/page";

@@ -9,6 +9,7 @@ import {
   BarChart, 
   CheckSquare,
   LayoutDashboard, 
+  Landmark,
   LogOut, 
   Settings, 
   Users
@@ -20,6 +21,7 @@ const NAV_LINKS = [
   { href: "/admin/users", label: "Users & Verification", icon: Users },
   { href: "/admin/approvals", label: "Approvals Queue", icon: CheckSquare },
   { href: "/admin/disputes", label: "Disputes", icon: AlertTriangle },
+  { href: "/admin/escrow", label: "Escrow Monitor", icon: Landmark },
   { href: "/admin/analytics", label: "Analytics", icon: BarChart },
   { href: "/admin/settings", label: "Settings", icon: Settings },
 ];

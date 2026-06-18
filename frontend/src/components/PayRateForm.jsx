@@ -4,11 +4,14 @@ import { ArrowRight, CheckCircle2, ShieldCheck, HeadphonesIcon, Smile } from "lu
 import { useState, useTransition } from "react";
 import StarRating from "./StarRating";
 import { useRouter } from "next/navigation";
+import { supabase } from "@/lib/supabase";
 
 export default function PayRateForm({
   total,
   freelancerName,
   paymentMethodsNode,
+  jobId,
+  freelancerId,
 }) {
   const [rating, setRating] = useState(0);
   const [review, setReview] = useState("");
@@ -18,8 +21,54 @@ export default function PayRateForm({
 
   function handleSubmit() {
     startTransition(async () => {
-      // Simulate Supabase mutation
-      await new Promise((res) => setTimeout(res, 1200));
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        const payerId = session?.user?.id;
+
+        // 1. Record the transaction in Supabase
+        if (jobId && payerId && freelancerId) {
+          const ref = "FAP-" + Math.random().toString(36).substr(2, 9).toUpperCase();
+          const { error: txError } = await supabase
+            .from("transactions")
+            .insert({
+              job_id: jobId,
+              payer_id: payerId,
+              payee_id: freelancerId,
+              amount: total,
+              payment_method: "mobile_money",
+              status: "released",
+              reference: ref,
+              notes: review || "Job payment completed via Fapshi."
+            });
+            
+          if (txError) throw txError;
+
+          // 2. Fetch freelancer current profile ratings & update
+          const { data: profileData, error: profileErr } = await supabase
+            .from("profiles")
+            .select("rating, total_reviews")
+            .eq("id", freelancerId)
+            .single();
+
+          if (!profileErr && profileData) {
+            const currentReviews = profileData.total_reviews || 0;
+            const currentRating = Number(profileData.rating) || 0;
+            const newReviewsCount = currentReviews + 1;
+            const newRatingAvg = parseFloat(((currentRating * currentReviews + rating) / newReviewsCount).toFixed(2));
+
+            await supabase
+              .from("profiles")
+              .update({
+                rating: newRatingAvg,
+                total_reviews: newReviewsCount
+              })
+              .eq("id", freelancerId);
+          }
+        }
+      } catch (err) {
+        console.error("Payment & rating submission error:", err);
+      }
+
       setSubmitted(true);
     });
   }

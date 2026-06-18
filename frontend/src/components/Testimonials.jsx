@@ -32,15 +32,21 @@ const testimonials = [
 ];
 
 export default function Testimonials() {
+  const avatarColors = [
+    "bg-indigo-100 text-indigo-700",
+    "bg-emerald-100 text-emerald-700",
+    "bg-rose-100 text-rose-700",
+    "bg-amber-100 text-amber-700"
+  ];
   return (
-    <section className="py-20 px-5 md:px-12 overflow-hidden">
+    <section className="py-24 px-5 md:px-12 overflow-hidden bg-white">
       <div className="max-w-6xl mx-auto">
         {/* Header */}
-        <div className="text-center mb-14">
-          <span className="text-xs font-bold uppercase tracking-widest text-amber-700 bg-amber-50 px-3.5 py-1.5 rounded-full">
+        <div className="text-center mb-16">
+          <span className="text-xs font-bold uppercase tracking-widest text-amber-700 bg-amber-50 px-4 py-2 rounded-full border border-amber-100 shadow-sm">
             Real Reviews
           </span>
-          <h2 className="text-headline-lg text-(--color-primary) mt-4 mb-4">
+          <h2 className="text-headline-lg text-(--color-primary) mt-5 mb-4">
             Loved by households & students
           </h2>
           <p className="text-body-md text-(--color-on-surface-variant) max-w-xl mx-auto leading-relaxed">
@@ -49,37 +55,37 @@ export default function Testimonials() {
         </div>
 
         {/* Testimonial Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
           {testimonials.map((t, i) => (
             <div
               key={i}
-              className="bg-white border border-(--color-outline-variant)/25 rounded-(--radius-xl) p-7 shadow-level-1 hover:shadow-level-3 transition-all hover:-translate-y-1 relative"
+              className="bg-white border border-(--color-outline-variant)/20 rounded-(--radius-xl) p-8 shadow-level-1 hover:shadow-level-3 hover:translate-y-[-4px] transition-all duration-300 relative group"
             >
               {/* Quote Icon */}
-              <div className="absolute top-6 right-6 text-(--color-surface-dim)">
-                <Quote className="w-8 h-8 fill-(--color-surface-dim)" strokeWidth={0} />
+              <div className="absolute top-8 right-8 text-(--color-outline-variant)/30 group-hover:text-indigo-400/20 transition-colors">
+                <Quote className="w-10 h-10 fill-current" strokeWidth={0} />
               </div>
 
               {/* Stars */}
-              <div className="flex gap-0.5 mb-4">
+              <div className="flex gap-1 mb-5">
                 {[...Array(t.rating)].map((_, si) => (
                   <Star key={si} className="w-4 h-4 fill-amber-400 text-amber-400" strokeWidth={0} />
                 ))}
               </div>
 
               {/* Review Text */}
-              <p className="text-body-sm text-(--color-on-background) leading-relaxed mb-6 italic">
+              <p className="text-body-sm text-(--color-on-background) leading-relaxed mb-8 font-medium text-gray-800 italic">
                 &ldquo;{t.text}&rdquo;
               </p>
 
               {/* Reviewer */}
-              <div className="flex items-center gap-3 pt-4 border-t border-(--color-outline-variant)/20">
-                <div className="w-10 h-10 rounded-full bg-(--color-surface-container) flex items-center justify-center text-xl select-none">
-                  {t.avatar}
+              <div className="flex items-center gap-3.5 pt-5 border-t border-(--color-outline-variant)/15">
+                <div className={`w-11 h-11 rounded-full ${avatarColors[i % avatarColors.length]} flex items-center justify-center font-bold text-sm select-none shadow-sm`}>
+                  {t.name.split(" ")[0].charAt(0)}{t.name.split(" ").length > 1 ? t.name.split(" ")[1].charAt(0) : ""}
                 </div>
                 <div>
                   <div className="text-body-sm font-bold text-(--color-on-background)">{t.name}</div>
-                  <div className="text-xs text-(--color-on-surface-variant)">{t.role}</div>
+                  <div className="text-xs text-(--color-on-surface-variant) font-semibold mt-0.5">{t.role}</div>
                 </div>
               </div>
             </div>

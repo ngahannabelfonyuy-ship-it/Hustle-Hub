@@ -82,24 +82,26 @@ export default function Navbar() {
   ];
 
   return (
-    <nav className="sticky top-0 z-50 bg-(--color-background) border-b border-(--color-outline-variant)/30 py-4 px-5 md:px-12">
+    <nav className="sticky top-0 z-50 bg-(--color-background)/75 backdrop-blur-md border-b border-(--color-outline-variant)/30 py-4 px-5 md:px-12 shadow-sm transition-all duration-300">
       <div className="max-w-6xl mx-auto flex items-center justify-between">
         {/* Left container for logo and links */}
         <div className="flex items-center gap-10">
           {/* Brand Logo */}
-          <Link href="/" className="text-2xl font-bold font-[family-name:--font-headline] text-(--color-primary) hover:opacity-90 transition-opacity">
-            HustleHub
+          <Link href="/" className="text-2xl font-bold font-[family-name:--font-headline] text-(--color-primary) hover:scale-[1.02] transition-transform flex items-center gap-1.5">
+            <span className="bg-gradient-to-br from-(--color-primary) to-indigo-500 text-white w-8 h-8 rounded-lg flex items-center justify-center text-lg shadow-sm">H</span>
+            <span>HustleHub</span>
           </Link>
-
+          
           {/* Desktop Navigation Links */}
-          <div className="hidden md:flex items-center gap-8 text-body-md font-medium text-(--color-on-background)">
+          <div className="hidden md:flex items-center gap-8 text-body-md font-semibold text-(--color-on-background)">
             {menuItems.map((item, index) => (
               <Link 
                 key={index} 
                 href={item.href} 
-                className="hover:text-(--color-primary) transition-colors"
+                className="hover:text-(--color-primary) transition-colors duration-200 relative group"
               >
                 {item.label}
+                <span className="absolute bottom-[-4px] left-0 w-0 h-0.5 bg-(--color-primary) transition-all duration-200 group-hover:w-full" />
               </Link>
             ))}
           </div>
@@ -111,9 +113,9 @@ export default function Navbar() {
             <div className="flex items-center gap-5">
               <div className="flex items-center gap-2.5">
                 {profile?.avatar_url ? (
-                  <img src={profile.avatar_url} alt="Profile" className="w-8 h-8 rounded-full object-cover border border-(--color-outline-variant)/50" />
+                  <img src={profile.avatar_url} alt="Profile" className="w-8 h-8 rounded-full object-cover border border-(--color-outline-variant)/50 shadow-sm" />
                 ) : (
-                  <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-(--color-primary) font-bold text-sm">
+                  <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-(--color-primary) font-bold text-sm shadow-sm">
                     {profile?.name ? profile.name.charAt(0).toUpperCase() : <User className="w-4 h-4" />}
                   </div>
                 )}
@@ -125,7 +127,7 @@ export default function Navbar() {
 
               <Link 
                 href={getDashboardHref()} 
-                className="flex items-center gap-1.5 text-body-sm font-semibold text-(--color-primary) hover:underline"
+                className="flex items-center gap-1.5 text-body-sm font-semibold text-(--color-primary) hover:opacity-85 transition-opacity"
               >
                 <LayoutDashboard className="w-4 h-4" />
                 Dashboard
@@ -141,10 +143,10 @@ export default function Navbar() {
             </div>
           ) : (
             <>
-              <Link href="/login" className="text-body-md font-medium text-(--color-on-background) hover:text-(--color-primary) transition-colors px-3 py-2">
+              <Link href="/login" className="text-body-md font-semibold text-(--color-on-background) hover:text-(--color-primary) transition-colors px-3 py-2">
                 Log In
               </Link>
-              <Link href="/signup" className="bg-(--color-primary) text-(--color-on-primary) px-5 py-2.5 rounded-(--radius-md) font-medium hover:opacity-90 hover:scale-[1.02] active:scale-[0.98] transition-all shadow-level-1">
+              <Link href="/signup" className="bg-gradient-to-r from-(--color-primary) to-indigo-700 text-(--color-on-primary) px-5 py-2.5 rounded-(--radius-md) font-semibold hover:shadow-md hover:scale-[1.02] active:scale-[0.98] transition-all duration-200">
                 Get Started
               </Link>
             </>
